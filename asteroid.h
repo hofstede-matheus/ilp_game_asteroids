@@ -1,3 +1,5 @@
+#ifndef __ASTEROID_H__
+#define __ASTEROID_H__ 1
 
 typedef struct tAsteroid{ 
   int radius;
@@ -5,8 +7,7 @@ typedef struct tAsteroid{
   int posX;
   int posY;
   // velocidade na tela
-  int velX;
-  int velY;
+  int vel;
   /*
     0 = vermelho;
     1 = verde;
@@ -17,7 +18,7 @@ typedef struct tAsteroid{
                
                
 // ***********************************************
-void clearTree( TreeNode** r);
+Asteroid* createAsteroid();
 
-
+#endif //__ASTEROID_H__
     
