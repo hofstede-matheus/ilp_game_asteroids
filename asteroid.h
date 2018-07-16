@@ -1,5 +1,10 @@
+
 #ifndef __ASTEROID_H__
+
 #define __ASTEROID_H__ 1
+
+
+
 
 typedef struct tAsteroid{ 
   int radius;

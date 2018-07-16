@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "ilpgame.h": "c",
+        "initializer_list": "c",
+        "string_view": "c"
+    }
+}
