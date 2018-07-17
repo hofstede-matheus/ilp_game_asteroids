@@ -12,7 +12,8 @@ typedef struct tAsteroid{
   int posX;
   int posY;
   // velocidade na tela
-  int vel;
+  int velX;
+  int velY;
   /*
     0 = vermelho;
     1 = verde;
@@ -24,6 +25,7 @@ typedef struct tAsteroid{
                
 // ***********************************************
 Asteroid* createAsteroid();
+int sinal();
 
 #endif //__ASTEROID_H__
     

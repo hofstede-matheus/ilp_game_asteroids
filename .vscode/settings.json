@@ -2,6 +2,9 @@
     "files.associations": {
         "ilpgame.h": "c",
         "initializer_list": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "circle.h": "c",
+        "stdbool.h": "c",
+        "cmath": "c"
     }
 }
