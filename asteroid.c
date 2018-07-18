@@ -16,7 +16,7 @@ Asteroid* createAsteroid() {
     
     Asteroid* asteroid = (Asteroid*) malloc(sizeof(Asteroid));
     //isso é um circulo
-    asteroid->radius = (rand() % 60) + 15;
+    asteroid->radius = (rand() % 30) + 10;
     asteroid->posX = rand() % 800;
     asteroid->posY = rand() % 600;
     // posso subistituir por isso:

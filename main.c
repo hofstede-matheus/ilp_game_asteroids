@@ -27,7 +27,7 @@ Uint32 framecount;
 // the value you want
 float framespersecond;
 
-
+SDL_Event event;
 
 
 
@@ -242,11 +242,26 @@ void destroy() {
 }
 
 void processEvent(SDL_Event event) {
-  if (isQuitEvent(event))
+  if (isQuitEvent(event)){
     endGameLoop();
+  }
+  switch(event.type){
+      case SDL_KEYDOWN:
+        if(move1){
+            move1 = false;
+        }else{
+            move1 = true;
+        }
+        break;
+  }
 }
 
 void update() {
+    
+
+
+
+
     // mede o FPS
     fpsthink();
     printf("%f\n", framespersecond);
@@ -310,14 +325,30 @@ void update() {
     if(move1)
     moveAsteroids(list, 0, 800, 0, 600);
 
-    Uint32 mouse = SDL_GetMouseState(&x, &y);
-    if (mouse & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-        printf("%d\n", list->numElem);
-        if(move1)move1 = 0;
-        else move1 = 1;
-        if(list->start != NULL){
-            //removeAtEnd(list);
-        } 
+    while( SDL_PollEvent( &event ) ){
+        switch( event.type ){
+            /* Look for a keypress */
+            case SDL_KEYDOWN:
+            move1 = false;
+                /* Check the SDLKey values and move change the coords */
+                switch( event.key.keysym.sym ){
+                    case SDLK_LEFT:
+                        
+                        break;
+                    case SDLK_RIGHT:
+                        move1 = false;
+                        break;
+                    case SDLK_UP:
+                        move1 = false;
+                        break;
+                    case SDLK_DOWN:
+                        move1 = false;
+                        break;
+                    default:
+                        break;
+                }
+            
+        }
     }
 
 
