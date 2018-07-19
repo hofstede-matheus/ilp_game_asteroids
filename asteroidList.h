@@ -13,7 +13,6 @@ typedef struct node {
 
 typedef struct { 
     Node* start;
-    Node* end;
     int numElem;
 } AsteroidList;
 

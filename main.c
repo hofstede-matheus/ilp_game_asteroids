@@ -182,11 +182,11 @@ void draw_circle_render(Asteroid* asteroid){
 
 void draw_circle(QuadTree* quadTree)
 {
-    Asteroid* asteroid1 = quadTree->asteroid1;
-    Asteroid* asteroid2 = quadTree->asteroid2;
+    Asteroid* asteroid = quadTree->asteroid;
+    //Asteroid* asteroid2 = quadTree->asteroid2;
 
-    if(!(asteroid1 == NULL)) draw_circle_render(asteroid1);
-    if(!(asteroid2 == NULL)) draw_circle_render(asteroid2);
+    if(!(asteroid == NULL)) draw_circle_render(asteroid);
+    //if(!(asteroid2 == NULL)) draw_circle_render(asteroid2);
 
     if(quadTree->divided){
         draw_circle(quadTree->nw);
@@ -211,7 +211,7 @@ void init() {
 
   img = loadImage("walking1.png");
 
-  tree = createTree(0, 0, 800, 600, 2);
+  tree = createTree(0, 0, 800, 600);
 
     rectangle2.x = 10;
     rectangle2.y = 10;
@@ -290,7 +290,7 @@ void update() {
             if( !(current.posX == near.posX &&  current.posY == near.posY && current.radius == near.radius)){
                 //printf("%d:%d     %d:%d \n", current.posX ,current.posY, near.posX, near.posY);
                 //printf("%p    %p \n", &current, &near);
-                float d = sqrt( pow (near.posX - current.posX, 2) + pow (near.posY - current.posY, 2));
+                float d = (float) sqrt( pow (near.posX - current.posX, 2) + pow (near.posY - current.posY, 2));
                 if(d < current.radius + near.radius){
                     node->asteroid->color = 4;
                     //printf("%f:%d\n", d, current.radius / 2 + near.radius / 2);
@@ -325,34 +325,18 @@ void update() {
     if(move1)
     moveAsteroids(list, 0, 800, 0, 600);
 
-    while( SDL_PollEvent( &event ) ){
-        switch( event.type ){
-            /* Look for a keypress */
-            case SDL_KEYDOWN:
-            move1 = false;
-                /* Check the SDLKey values and move change the coords */
-                switch( event.key.keysym.sym ){
-                    case SDLK_LEFT:
-                        
-                        break;
-                    case SDLK_RIGHT:
-                        move1 = false;
-                        break;
-                    case SDLK_UP:
-                        move1 = false;
-                        break;
-                    case SDLK_DOWN:
-                        move1 = false;
-                        break;
-                    default:
-                        break;
-                }
-            
-        }
+    Uint32 mouse = SDL_GetMouseState(&x, &y);
+    if (mouse & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+        printf("%d\n", list->numElem);
+        if(move1)move1 = 0;
+        else move1 = 1;
+        if(list->start != NULL){
+            //removeAtEnd(list);
+        } 
     }
 
 
-    tree = createTree(0, 0, 800, 600, 2);
+    tree = createTree(0, 0, 800, 600);
     // atualiza arvore
     if(list->start != NULL){
         Node* node = list->start;

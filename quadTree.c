@@ -5,7 +5,7 @@
 
 #include "quadTree.h"
 
-#define MAX_CAPACITY 2
+//#define MAX_CAPACITY 2
 
 
 
@@ -52,19 +52,19 @@ int contains(tRectangle boundary, int x, int y){
     }
 }
 
-QuadTree* createTree(int x, int y, int w, int h, int capacity){
+QuadTree* createTree(int x, int y, int w, int h){
     QuadTree* tree = (QuadTree*) malloc(sizeof(QuadTree));
     tree->boundary.x = x;
     tree->boundary.y = y;
     tree->boundary.w = w;
     tree->boundary.h = h;
 
-    tree->capacity = MAX_CAPACITY;
+    //tree->capacity = MAX_CAPACITY;
     tree->size = 0;
     tree->divided = 0;
 
-    tree->asteroid1 = NULL;
-    tree->asteroid2 = NULL;
+    tree->asteroid = NULL;
+    //tree->asteroid2 = NULL;
 
     
     
@@ -79,19 +79,15 @@ void insertInQuadTree(QuadTree* quadTree, Asteroid* asteroid){
         quadTree->asteroid[quadTree->size++] = asteroid;
     }*/
     if(quadTree->size == 0){
-        quadTree->asteroid1 = asteroid;
+        quadTree->asteroid = asteroid;
         quadTree->size++;
-    }else if(quadTree->size == 1){
-        quadTree->asteroid2 = asteroid;
-        quadTree->size++;
-    }
-    else{
+    }else{
         // subdividir
         if(!quadTree->divided){
-        quadTree->nw = createTree(quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->ne = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->sw = createTree(quadTree->boundary.x , quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->se = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
+        quadTree->nw = createTree(quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2);
+        quadTree->ne = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2);
+        quadTree->sw = createTree(quadTree->boundary.x , quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2);
+        quadTree->se = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2);
         quadTree->divided = 1;
         }
         //insertInQuadTree(quadTree, asteroid);
@@ -103,47 +99,19 @@ void insertInQuadTree(QuadTree* quadTree, Asteroid* asteroid){
     }
 }
 // pra inicialmente não haver colisões
-void initialInsertInQuadTree(QuadTree* quadTree, Asteroid* asteroid){
-    //checa se vai colocar no lugar certo
-    if(!contains(quadTree->boundary, asteroid->posX, asteroid->posY))return;
-    /*
-    if(quadTree->size < quadTree->capacity){
-        quadTree->asteroid[quadTree->size++] = asteroid;
-    }*/
-    if(quadTree->size == 0){
-        quadTree->asteroid1 = asteroid;
-        quadTree->size++;
-    }else if(quadTree->size == 1){
-        quadTree->asteroid2 = asteroid;
-        quadTree->size++;
-    }
-    else{
-        // subdividir
-        if(!quadTree->divided){
-        quadTree->nw = createTree(quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->ne = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->sw = createTree(quadTree->boundary.x , quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->se = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2, MAX_CAPACITY);
-        quadTree->divided = 1;
-        }
-        //insertInQuadTree(quadTree, asteroid);
-        insertInQuadTree(quadTree->nw, asteroid);
-        insertInQuadTree(quadTree->ne, asteroid);
-        insertInQuadTree(quadTree->sw, asteroid);
-        insertInQuadTree(quadTree->se, asteroid);
 
-    }
-}
 void query(AsteroidList* asteroidList, QuadTree* quadTree, tCircle range){
     if(asteroidList == NULL) asteroidList = initList();
 
     if(!intersectsCircle(quadTree->boundary, range)){
         return;
     }
-    if(quadTree->asteroid1 != NULL)
-    if(containsPoint(range, quadTree->asteroid1->posX, quadTree->asteroid1->posY)) insertInList(asteroidList, quadTree->asteroid1);
+    if(quadTree->asteroid != NULL)
+    if(containsPoint(range, quadTree->asteroid->posX, quadTree->asteroid->posY)) insertInList(asteroidList, quadTree->asteroid);
+    /*
     if(quadTree->asteroid2 != NULL)
     if(containsPoint(range, quadTree->asteroid2->posX, quadTree->asteroid2->posY)) insertInList(asteroidList, quadTree->asteroid2);
+    */
 
     if(quadTree->divided){
         query(asteroidList, quadTree->nw, range);

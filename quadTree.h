@@ -7,10 +7,10 @@
 
 typedef struct tQuadTree{ 
     tRectangle boundary;
-    int capacity;
+    //int capacity;
     int size; // total de asteroides guardados
-    Asteroid* asteroid1;
-    Asteroid* asteroid2;
+    Asteroid* asteroid;
+    //Asteroid* asteroid2;
     int divided;
     struct tQuadTree* nw;
     struct tQuadTree* ne;
@@ -21,7 +21,7 @@ typedef struct tQuadTree{
 
                
 // ***********************************************
-QuadTree* createTree(int x, int y, int w, int h, int capacity);
+QuadTree* createTree(int x, int y, int w, int h);
 void insertInQuadTree(QuadTree* quadTree, Asteroid* asteroid);
 //void clearTree( TreeNode** r);
 void query(AsteroidList* asteroidList, QuadTree* quadTree, tCircle range);
