@@ -111,7 +111,6 @@ void query(AsteroidList* asteroidList, QuadTree* quadTree, tCircle range){
     /*
     if(quadTree->asteroid2 != NULL)
     if(containsPoint(range, quadTree->asteroid2->posX, quadTree->asteroid2->posY)) insertInList(asteroidList, quadTree->asteroid2);
-    */
 
     if(quadTree->divided){
         query(asteroidList, quadTree->nw, range);
