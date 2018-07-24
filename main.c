@@ -224,11 +224,14 @@ void init() {
     insertInList(list, createAsteroid());
     //printf("00\n");
   }
+
+
+  
     
   Node* node = list->start;
-  printf("%d!\n", i);
+  //printf("%d!\n", i);
   while(node != NULL){
-    //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
+    printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
     insertInQuadTree(tree, node->asteroid);
     node = node->next;      
   }
@@ -263,14 +266,14 @@ void update() {
 
 
     // mede o FPS
-    fpsthink();
-    printf("%f\n", framespersecond);
+    //fpsthink();
+    //printf("%f\n", framespersecond);
 
 
 
 
     
-    // calcula as colisões
+    /* calcula as colisões
     Node* node = list->start;
     while(node != NULL){
         Asteroid current = *node->asteroid;
@@ -316,14 +319,14 @@ void update() {
     
 
 
-
+    */
 
 
 
     
     // move os asteroides
-    if(move1)
-    moveAsteroids(list, 0, 800, 0, 600);
+    //if(move1)
+    //moveAsteroids(list, 0, 800, 0, 600);
 
     while( SDL_PollEvent( &event ) ){
         switch( event.type ){
@@ -368,7 +371,7 @@ void update() {
 }
 
 void draw() {
-    SDL_FillRect(screen, &screenRect, clearColor);
+    //SDL_FillRect(screen, &screenRect, clearColor);
     //SDL_Flip(screen);
   
   
@@ -382,11 +385,12 @@ void draw() {
   }
   */
   
-  draw_circle(tree);
-  drawImage(img, 0, 0);
+  //drawImage(img, 0, 0);
 
   draw_rect(tree);
-  SDL_RenderDrawRect(renderer, &rectangle2);
+  draw_circle(tree);
+  //SDL_RenderDrawRect(renderer, &rectangle2);
+  //clearTree(tree);
   
 }
 

@@ -25,6 +25,8 @@ QuadTree* createTree(int x, int y, int w, int h, int capacity);
 void insertInQuadTree(QuadTree* quadTree, Asteroid* asteroid);
 //void clearTree( TreeNode** r);
 void query(AsteroidList* asteroidList, QuadTree* quadTree, tCircle range);
+void clearTree(QuadTree* quadTree);
+
 
 
     

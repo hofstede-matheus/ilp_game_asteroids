@@ -66,6 +66,11 @@ QuadTree* createTree(int x, int y, int w, int h, int capacity){
     tree->asteroid1 = NULL;
     tree->asteroid2 = NULL;
 
+    tree->nw = NULL;
+    tree->ne = NULL;
+    tree->sw = NULL;
+    tree->se = NULL;
+
     
     
 
@@ -158,6 +163,24 @@ void query(AsteroidList* asteroidList, QuadTree* quadTree, tCircle range){
     intersects()
     if(quadTree->boundary )
     */
+}
+
+void clearTree(QuadTree* quadTree){
+    if(quadTree->divided){
+        clearTree(quadTree->nw);
+        clearTree(quadTree->ne);
+        clearTree(quadTree->sw);
+        clearTree(quadTree->se);
+    }
+    if(!(quadTree->nw == NULL)) free(quadTree->nw);
+    if(!(quadTree->ne == NULL)) free(quadTree->ne);
+    if(!(quadTree->sw == NULL)) free(quadTree->sw);
+    if(!(quadTree->se == NULL)) free(quadTree->se);
+    if(!(quadTree->asteroid1 == NULL)) free(quadTree->asteroid1);
+    if(!(quadTree->asteroid2 == NULL)) free(quadTree->asteroid2);    
+
+
+
 }
 
 
