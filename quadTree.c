@@ -70,13 +70,18 @@ int getSector(tRectangle boundary, Asteroid* asteroid){
 
 }
 
-QuadTree* createTree(int x, int y, int w, int h){
+QuadTree* createTree(int x, int y, int w, int h, int altura){
     QuadTree* tree = (QuadTree*) malloc(sizeof(QuadTree));
     tree->boundary.x = x;
     tree->boundary.y = y;
     tree->boundary.w = w;
     tree->boundary.h = h;
     tree->type = 0;
+    tree->altura = altura;
+    //tree->asteroid_q = 0;
+    // lista pra se a altura for maior que 5
+    tree->list = initList();
+    printf("ALTURA É :%d\n", tree->altura);
     //tree->divided = 0;
 
     tree->nw = NULL;
@@ -93,14 +98,22 @@ QuadTree* createTree(int x, int y, int w, int h){
 }
 
 void subdivide(QuadTree* quadTree, Asteroid* asteroid, Asteroid* vizinho){
-    quadTree->nw = createTree(quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2);
-    quadTree->ne = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2);
-    quadTree->sw = createTree(quadTree->boundary.x , quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2);
-    quadTree->se = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2);
-    quadTree->type = 2;
+        
+        
+        quadTree->nw = createTree(quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2, quadTree->altura + 1);
+        quadTree->ne = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y, quadTree->boundary.w/2, quadTree->boundary.h/2, quadTree->altura + 1);
+        quadTree->sw = createTree(quadTree->boundary.x , quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2, quadTree->altura + 1);
+        quadTree->se = createTree(quadTree->boundary.x + quadTree->boundary.w/2, quadTree->boundary.y + quadTree->boundary.h/2, quadTree->boundary.w/2, quadTree->boundary.h/2, quadTree->altura + 1);
+        quadTree->type = 2;
+    
     if(getSector(quadTree->boundary, asteroid) == getSector(quadTree->boundary, vizinho)){
         // recursivamente até achar um lugar que os dois não estão juntos
     printf("Vizinhos ainda estão juntos\n");
+    if(quadTree->altura > 4){
+        printf("Não chamou o subdivide!!!!!\n");
+        insertInQuadTree(quadTree, asteroid);
+        insertInQuadTree(quadTree, vizinho);
+    }else{
         switch(getSector(quadTree->boundary, asteroid)){
             case 0:
                 printf("ambos são é NW\n");
@@ -119,6 +132,7 @@ void subdivide(QuadTree* quadTree, Asteroid* asteroid, Asteroid* vizinho){
                 subdivide(quadTree->se, asteroid, vizinho);
                 break;
         }
+    }   
     }else{
         // coloca o asteroide no lugar
     printf("vizinhos separados\n");
@@ -172,10 +186,17 @@ void insertInQuadTree(QuadTree* quadTree, Asteroid* asteroid){
 
     printf("INSERT TREE CHAMADA\n");
     if(quadTree->type == 0){
-        printf("Achou espaço\n");
-        printf("ACHOU INSERT TREE asteroid %d:%d região {x=%d; y=%d w=%d h=%d} \n", asteroid->posX, asteroid->posY, quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w, quadTree->boundary.h);
-        quadTree->asteroid = asteroid;
-        quadTree->type = 1;
+        if(quadTree->altura > 4){
+            printf("MAIOR QUE 4\n");
+            insertInList(quadTree->list, asteroid);
+            return;
+        }else{
+            printf("Achou espaço\n");
+            printf("ACHOU INSERT TREE asteroid %d:%d região {x=%d; y=%d w=%d h=%d} \n", asteroid->posX, asteroid->posY, quadTree->boundary.x, quadTree->boundary.y, quadTree->boundary.w, quadTree->boundary.h);
+            quadTree->asteroid = asteroid;
+            quadTree->type = 1;
+        }
+        
     }else if(quadTree->type == 1){
         // subdivide
         printf("quadtree precisou der dividida\n");

@@ -187,19 +187,32 @@ void draw_circle_render(Asteroid* asteroid){
 
 void draw_circle(QuadTree* quadTree)
 {
-    Asteroid* asteroid = quadTree->asteroid;
-    //printf("%d:%d\n", asteroid->posX, asteroid->posY);
-    //Asteroid* asteroid2 = quadTree->asteroid2;
+    if(quadTree->altura > 4){
+        //printf("MAIOR QUE 5\n");
+        Node* node = list->start;
+        //printf("%d!\n", i);
+        while(node != NULL){
+            //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
+            draw_circle_render(node->asteroid);
+            //sleep(1);
+            node = node->next;      
+        }
+    }else{
+        Asteroid* asteroid = quadTree->asteroid;
+        //printf("%d:%d\n", asteroid->posX, asteroid->posY);
+        //Asteroid* asteroid2 = quadTree->asteroid2;
 
-    if(quadTree->type == 1) draw_circle_render(asteroid);
-    //if(!(asteroid2 == NULL)) draw_circle_render(asteroid2);
+        if(quadTree->type == 1) draw_circle_render(asteroid);
+        //if(!(asteroid2 == NULL)) draw_circle_render(asteroid2);
 
-    if(quadTree->type == 2){
-        draw_circle(quadTree->nw);
-        draw_circle(quadTree->ne);
-        draw_circle(quadTree->sw);
-        draw_circle(quadTree->se);
+        if(quadTree->type == 2){
+            draw_circle(quadTree->nw);
+            draw_circle(quadTree->ne);
+            draw_circle(quadTree->sw);
+            draw_circle(quadTree->se);
+        }
     }
+    
 }
 
 
@@ -216,7 +229,7 @@ void init() {
     tRectangle rec = createRetangle(0, 0, 800, 600);
     printf("!%d",getSector(rec, createAsteroidAtPosition(700, 700, 10)));
 
-    tree = createTree(0, 0, 800, 600);
+    tree = createTree(0, 0, 800, 600, 0);
     
     //rectangle2.x = 10;
     //rectangle2.y = 10;
@@ -228,27 +241,28 @@ void init() {
 
     list = initList(); 
 
-    /*
+    
     for(i = 0; i < asteroids_num; i++){
         insertInList(list, createAsteroid());
         //printf("00\n");
     }
-    */
-    insertInList(list, createAsteroidAtPosition(210, 40, 10));
-    insertInList(list, createAsteroidAtPosition(250, 60, 10));
+    
+    
+    //insertInList(list, createAsteroidAtPosition(210, 40, 10));
+    //insertInList(list, createAsteroidAtPosition(250, 60, 10));
 
-    insertInList(list, createAsteroidAtPosition(742, 266, 10));
-    insertInList(list, createAsteroidAtPosition(629, 218, 10));
+    //insertInList(list, createAsteroidAtPosition(742, 266, 10));
+    //insertInList(list, createAsteroidAtPosition(629, 218, 10));
 
-    insertInList(list, createAsteroidAtPosition(311, 228, 10));
-    insertInList(list, createAsteroidAtPosition(292, 78, 10));
-    insertInList(list, createAsteroidAtPosition(485, 543, 10));
+    //insertInList(list, createAsteroidAtPosition(311, 228, 10));
+    //insertInList(list, createAsteroidAtPosition(292, 78, 10));
+    //insertInList(list, createAsteroidAtPosition(485, 543, 10));
 
-    insertInList(list, createAsteroidAtPosition(550, 140, 10));
-    insertInList(list, createAsteroidAtPosition(150, 350, 10));
-    insertInList(list, createAsteroidAtPosition(450, 370, 10));
-    insertInList(list, createAsteroidAtPosition(70, 400, 10));
-
+    //insertInList(list, createAsteroidAtPosition(550, 140, 10));
+    //insertInList(list, createAsteroidAtPosition(150, 350, 10));
+    //insertInList(list, createAsteroidAtPosition(450, 370, 10));
+    //insertInList(list, createAsteroidAtPosition(70, 400, 10));
+    
     
     Node* node = list->start;
     //printf("%d!\n", i);
@@ -360,8 +374,8 @@ void update() {
 
     
     // move os asteroides
-    //if(move1)
-    //moveAsteroids(list, 0, 800, 0, 600);
+    if(move1)
+    moveAsteroids(list, 0, 800, 0, 600);
 
     while( SDL_PollEvent( &event ) ){
         switch( event.type ){
@@ -388,7 +402,7 @@ void update() {
             
         }
     }
-    /*
+    
     // atualiza arvore
 
     tree = createTree(0, 0, 800, 600, 2);
@@ -404,7 +418,7 @@ void update() {
     }
     // e removendo
     // as coisas se movendo
-    */
+    
 }
 
 void draw() {
