@@ -294,7 +294,50 @@ void insertInQuadTree(QuadTree* quadTree, Asteroid* asteroid){
 }
 // pra inicialmente não haver colisões
 
-void query(AsteroidList* asteroidList, QuadTree* quadTree, tCircle range){
+void query(AsteroidList** asteroidList, QuadTree* quadTree, Asteroid* current){
+    
+    while(quadTree != NULL && quadTree->list->start == NULL){
+        switch(getSector(quadTree->boundary, current)){
+            case 0:
+                printf("ast são é NW (%d:%d)\n", current->posX, current->posY);
+                quadTree = quadTree->nw;
+                break;
+            case 1:
+                printf("ast são é NE(%d:%d)\n", current->posX, current->posY);  
+                quadTree = quadTree->ne;
+                break;
+            case 2:
+                printf("ast são é SW(%d:%d)\n", current->posX, current->posY);
+                quadTree = quadTree->sw;
+                break;
+            case 3:
+                printf("ast são é SE(%d:%d)\n", current->posX, current->posY);
+                quadTree = quadTree->se;
+                break;
+        }
+    }
+    if(quadTree != NULL){
+        printf("%d:%d\n", quadTree->list->start->asteroid->posX, quadTree->list->start->asteroid->posY);
+        //printf("%d:%d\n", quadTree->list->start->next->asteroid->posX, quadTree->list->start->next->asteroid->posY);
+        *asteroidList = quadTree->list;
+    }else{
+        printf("nada por perto de (%d:%d)\n", current->posX, current->posY);
+    }
+    
+    //printf("%d:%d\n", quadTree->list->start->next->next->asteroid->posX, quadTree->list->start->next->next->asteroid->posY);
+
+    //while(node != NULL){
+        //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);
+    //}
+
+    
+    //Node* node = quadTree->list->start;
+    //while(node != NULL){
+        //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);
+    //}
+
+
+    /*
     if(asteroidList == NULL) asteroidList = initList();
 
     if(!intersectsCircle(quadTree->boundary, range)){
