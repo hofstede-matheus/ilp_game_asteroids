@@ -7,6 +7,9 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
+
 
 
 
@@ -51,6 +54,7 @@ int x, y;
 
 int move1 = 1;
 
+int start_flag = 1;
 
 Asteroid* asteroids[5];
 
@@ -135,8 +139,9 @@ void draw_rect(QuadTree* quadTree){
     rectangle.y = quadTree->boundary.y;
     rectangle.w = quadTree->boundary.w;
     rectangle.h = quadTree->boundary.h;
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderDrawRect(renderer, &rectangle);
-    if(quadTree->divided){
+    if(quadTree->type == 2){
         draw_rect(quadTree->nw);
         draw_rect(quadTree->ne);
         draw_rect(quadTree->sw);
@@ -182,13 +187,14 @@ void draw_circle_render(Asteroid* asteroid){
 
 void draw_circle(QuadTree* quadTree)
 {
-    Asteroid* asteroid1 = quadTree->asteroid1;
-    Asteroid* asteroid2 = quadTree->asteroid2;
+    Asteroid* asteroid = quadTree->asteroid;
+    //printf("%d:%d\n", asteroid->posX, asteroid->posY);
+    //Asteroid* asteroid2 = quadTree->asteroid2;
 
-    if(!(asteroid1 == NULL)) draw_circle_render(asteroid1);
-    if(!(asteroid2 == NULL)) draw_circle_render(asteroid2);
+    if(quadTree->type == 1) draw_circle_render(asteroid);
+    //if(!(asteroid2 == NULL)) draw_circle_render(asteroid2);
 
-    if(quadTree->divided){
+    if(quadTree->type == 2){
         draw_circle(quadTree->nw);
         draw_circle(quadTree->ne);
         draw_circle(quadTree->sw);
@@ -199,6 +205,7 @@ void draw_circle(QuadTree* quadTree)
 
 
 void init() {
+    printf("!!");
 
     // pinta a tela de branco
     screenRect.x = screenRect.y = 0;
@@ -206,35 +213,59 @@ void init() {
     screenRect.h = screen->h;
     clearColor = SDL_MapRGB(screen->format, 255, 255, 255);
 
+    tRectangle rec = createRetangle(0, 0, 800, 600);
+    printf("!%d",getSector(rec, createAsteroidAtPosition(700, 700, 10)));
+
+    tree = createTree(0, 0, 800, 600);
+    
+    //rectangle2.x = 10;
+    //rectangle2.y = 10;
+    //rectangle2.w = 100;
+    //rectangle2.h = 100;
+    
+
+    
+
+    list = initList(); 
+
+    /*
+    for(i = 0; i < asteroids_num; i++){
+        insertInList(list, createAsteroid());
+        //printf("00\n");
+    }
+    */
+    insertInList(list, createAsteroidAtPosition(210, 40, 10));
+    insertInList(list, createAsteroidAtPosition(250, 60, 10));
+
+    insertInList(list, createAsteroidAtPosition(742, 266, 10));
+    insertInList(list, createAsteroidAtPosition(629, 218, 10));
+
+    insertInList(list, createAsteroidAtPosition(311, 228, 10));
+    insertInList(list, createAsteroidAtPosition(292, 78, 10));
+    insertInList(list, createAsteroidAtPosition(485, 543, 10));
+
+    insertInList(list, createAsteroidAtPosition(550, 140, 10));
+    insertInList(list, createAsteroidAtPosition(150, 350, 10));
+    insertInList(list, createAsteroidAtPosition(450, 370, 10));
+    insertInList(list, createAsteroidAtPosition(70, 400, 10));
+
+    
+    Node* node = list->start;
+    //printf("%d!\n", i);
+    while(node != NULL){
+        printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
+        insertInQuadTree(tree, node->asteroid);
+        //sleep(1);
+        node = node->next;      
+    }
+    
+
     
     
 
   img = loadImage("walking1.png");
 
-  tree = createTree(0, 0, 800, 600, 2);
-
-    rectangle2.x = 10;
-    rectangle2.y = 10;
-    rectangle2.w = 100;
-    rectangle2.h = 100;
-
-    list = initList(); 
-    
-  for(i = 0; i < asteroids_num; i++){
-    insertInList(list, createAsteroid());
-    //printf("00\n");
-  }
-
-
   
-    
-  Node* node = list->start;
-  //printf("%d!\n", i);
-  while(node != NULL){
-    printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
-    insertInQuadTree(tree, node->asteroid);
-    node = node->next;      
-  }
   i = 0;
   
     
@@ -260,6 +291,10 @@ void processEvent(SDL_Event event) {
 }
 
 void update() {
+
+    if(start_flag){
+        
+    }
     
 
 
@@ -353,10 +388,11 @@ void update() {
             
         }
     }
-
+    /*
+    // atualiza arvore
 
     tree = createTree(0, 0, 800, 600, 2);
-    // atualiza arvore
+    
     if(list->start != NULL){
         Node* node = list->start;
         //printf("%d!\n", i);
@@ -368,6 +404,7 @@ void update() {
     }
     // e removendo
     // as coisas se movendo
+    */
 }
 
 void draw() {
@@ -389,6 +426,7 @@ void draw() {
 
   draw_rect(tree);
   draw_circle(tree);
+
   //SDL_RenderDrawRect(renderer, &rectangle2);
   //clearTree(tree);
   
