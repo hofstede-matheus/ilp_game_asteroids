@@ -248,8 +248,8 @@ void init() {
     }
     
     
-    //insertInList(list, createAsteroidAtPosition(210, 40, 10));
-    //insertInList(list, createAsteroidAtPosition(250, 60, 10));
+    //insertInList(list, createAsteroidAtPosition(215, 45, 12));
+    //insertInList(list, createAsteroidAtPosition(240, 60, 12));
 
     //insertInList(list, createAsteroidAtPosition(742, 266, 10));
     //insertInList(list, createAsteroidAtPosition(629, 218, 10));
@@ -272,6 +272,9 @@ void init() {
         //sleep(1);
         node = node->next;      
     }
+
+
+    
     
 
     
@@ -319,22 +322,24 @@ void update() {
     //printf("%f\n", framespersecond);
 
 
-
-
-    
-    /* calcula as colisões
-    Node* node = list->start;
-    while(node != NULL){
-        Asteroid current = *node->asteroid;
+    //calcula as colisões
+    Node* total = list->start;
+    while(total != NULL){
+        Asteroid current = *total->asteroid;
+        printf("CURRENT - %d:%d\n", current.posX, current.posY);
         
-        node->asteroid->color = 3;
+        total->asteroid->color = 2;
 
-        tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
-        AsteroidList* asteroids = initList();
-        query(asteroids, tree, range);
-        Node* asteroidsAUX = asteroids->start;
+        //tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
+        AsteroidList* nearbyAsteroids = initList();
+        printf("query start\n");
+        query(&nearbyAsteroids, tree, &current);
+        Node* asteroidsAUX = nearbyAsteroids->start;
         while(asteroidsAUX != NULL){
+            printf("query start\n");
             Asteroid near = *asteroidsAUX->asteroid;
+            printf("NEAR - %d:%d\n", near.posX, near.posY);
+
             // let d = dist(p.x, p.y, other.x, other.y);
             //              x1   y1   x2       y2
             // p = current
@@ -344,31 +349,20 @@ void update() {
                 //printf("%p    %p \n", &current, &near);
                 float d = sqrt( pow (near.posX - current.posX, 2) + pow (near.posY - current.posY, 2));
                 if(d < current.radius + near.radius){
-                    node->asteroid->color = 4;
+                    total->asteroid->color = 4;
                     //printf("%f:%d\n", d, current.radius / 2 + near.radius / 2);
                 } 
-
-                
             }
-            
-
-
-
-
             asteroidsAUX = asteroidsAUX->next;
         }
-            
-
-
-
-
-
-        node = node->next;      
+        total = total->next;      
     }
+
+    
+    
     
 
 
-    */
 
 
 
@@ -404,7 +398,7 @@ void update() {
     }
     
     // atualiza arvore
-
+    
     tree = createTree(0, 0, 800, 600, 2);
     
     if(list->start != NULL){
