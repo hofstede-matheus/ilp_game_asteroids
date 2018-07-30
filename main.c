@@ -1,13 +1,19 @@
-#include "ilpgame.h"
+#include "ilpgame.h" //tá no spaceship.h
+#include <cmath>
 
 #include "asteroid.h"
 #include "quadTree.h"
+#include "spaceship.h"
 
 
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+
+
+Spaceship* spaceship;
 
 
 
@@ -34,8 +40,6 @@ SDL_Event event;
 
 
 
-
-
 SDL_Surface *img;
 SDL_Rect rectangle;
 SDL_Rect rectangle2;
@@ -57,6 +61,11 @@ int move1 = 1;
 int start_flag = 1;
 
 Asteroid* asteroids[5];
+
+Mix_Music *effect;
+
+float x2;
+float y2;
 
 
 
@@ -218,7 +227,9 @@ void draw_circle(QuadTree* quadTree)
 
 
 void init() {
-    printf("!!");
+    effect = loadMusic("coin.wav");
+
+    spaceship = createSpaceship();
 
     // pinta a tela de branco
     screenRect.x = screenRect.y = 0;
@@ -308,26 +319,56 @@ void processEvent(SDL_Event event) {
 }
 
 void update() {
+    const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
 
-    if(start_flag){
-        
+    // controle de aceleracao/frenagem
+    if (keyboard[SDL_SCANCODE_UP]) {
+        spaceship->vel += ACELERACAO;
     }
-    
+    if (keyboard[SDL_SCANCODE_DOWN]) {
+        spaceship->vel -= FRENAGEM;
+    }
 
+    // controle de rotacao
+    if (keyboard[SDL_SCANCODE_LEFT]) {
+        spaceship->angle -= VELANGULAR;
+    }
+    if (keyboard[SDL_SCANCODE_RIGHT]) {
+        spaceship->angle += VELANGULAR;
+    }
 
+    // aplica atrito
+    spaceship->vel -= DESACELERACAO;
 
+    // limita velocidade
+    if (spaceship->vel > VELMAX) {
+        spaceship->vel = VELMAX;
+    } else if(spaceship->vel < -VELMAX){
+        spaceship->vel = -VELMAX;
+    } else if (spaceship->vel < 0) {
+        if (keyboard[SDL_SCANCODE_DOWN]) {
+        spaceship->vel -= FRENAGEM;
+        }else{
+            spaceship->vel += ACELERACAO;
+        }
+    }
+
+    // atualiza posicao
+    spaceship->x += spaceship->vel * cos(spaceship->angle);
+    spaceship->y += spaceship->vel * sin(spaceship->angle);
+    spaceship->x2 = spaceship->x + cos(spaceship->angle) * TAM_CARRO;
+    spaceship->y2 = spaceship->y + sin(spaceship->angle) * TAM_CARRO;
 
     // mede o FPS
     //fpsthink();
     //printf("%f\n", framespersecond);
 
 
-    //calcula as colisões
+    //calcula as colisões dos asteróides
     Node* total = list->start;
     while(total != NULL){
         Asteroid current = *total->asteroid;
         printf("CURRENT - %d:%d\n", current.posX, current.posY);
-        
         total->asteroid->color = 2;
 
         //tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
@@ -350,6 +391,8 @@ void update() {
                 float d = sqrt( pow (near.posX - current.posX, 2) + pow (near.posY - current.posY, 2));
                 if(d < current.radius + near.radius){
                     total->asteroid->color = 4;
+                    //Mix_PlayMusic(effect, 1);
+
                     //printf("%f:%d\n", d, current.radius / 2 + near.radius / 2);
                 } 
             }
@@ -358,6 +401,19 @@ void update() {
         total = total->next;      
     }
 
+    //calcula a colisão da nave
+    Node* asteroidsAUX = list->start;
+        while(asteroidsAUX != NULL){
+            printf("query start\n");
+            Asteroid near = *asteroidsAUX->asteroid;
+            printf("NEAR - %d:%d\n", near.posX, near.posY);
+            float d = sqrt( pow (near.posX - spaceship->x, 2) + pow (near.posY - spaceship->y, 2));
+            float d2 = sqrt( pow (near.posX - spaceship->x2, 2) + pow (near.posY - spaceship->y2, 2));
+            if(d < near.radius || d2 < near.radius){
+                Mix_PlayMusic(effect, 1);
+            }
+            asteroidsAUX = asteroidsAUX->next;
+        }
     
     
     
@@ -368,15 +424,13 @@ void update() {
 
     
     // move os asteroides
-    if(move1)
-    moveAsteroids(list, 0, 800, 0, 600);
-
+    //if(move1)
+    //moveAsteroids(list, 0, 800, 0, 600);
+    /* Para pausar a execução nos testes
     while( SDL_PollEvent( &event ) ){
         switch( event.type ){
-            /* Look for a keypress */
             case SDL_KEYDOWN:
             move1 = false;
-                /* Check the SDLKey values and move change the coords */
                 switch( event.key.keysym.sym ){
                     case SDLK_LEFT:
                         
@@ -396,6 +450,7 @@ void update() {
             
         }
     }
+    */
     
     // atualiza arvore
     
@@ -416,27 +471,40 @@ void update() {
 }
 
 void draw() {
+    //float x2 = spaceship->x + cos(spaceship->angle) * TAM_CARRO;
+    //float y2 = spaceship->y + sin(spaceship->angle) * TAM_CARRO;
+
+    // drawLine(spaceship->x, spaceship->y, x2, y2, 255, 0, 0);
+    // drawLine(0.3 * spaceship->x + 0.7 * x2, 0.3 * spaceship->y + 0.7 * y2, x2, y2, 0, 255, 0);
+    // drawLine(-0.3 * spaceship->x + 0.7 * x2, -0.3 * spaceship->y + 0.7 * y2, x-2, -y2, 0, 255, 0);
+
+    drawLine(spaceship->x, spaceship->y, spaceship->x2, spaceship->y2, 255, 0, 0);
+    //drawLine(x2, y2 + TAM_CARRO, spaceship->x, spaceship->y, 0, 255, 0);
+    //drawLine(spaceship->x, spaceship->y, x2 + TAM_CARRO, y2 + TAM_CARRO, 0, 255, 0);
+    //drawLine(640, 480, 320, 0, 0, 255, 0);
+    //drawLine(0, 480, 640, 480, 0, 0, 255);
+
     //SDL_FillRect(screen, &screenRect, clearColor);
     //SDL_Flip(screen);
   
   
-  //drawImage(img, asteroids[i]->posX, asteroids[i]->posY);
-  /*
-  Node* node = list->start;
-  while(node != NULL){
-    //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
-    drawImage(img, node->asteroid->posX, node->asteroid->posY);
-    node = node->next;      
-  }
-  */
+    //drawImage(img, asteroids[i]->posX, asteroids[i]->posY);
+    /*
+    Node* node = list->start;
+    while(node != NULL){
+        //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
+        drawImage(img, node->asteroid->posX, node->asteroid->posY);
+        node = node->next;      
+    }
+    */
   
-  //drawImage(img, 0, 0);
+    //drawImage(img, 0, 0);
 
-  draw_rect(tree);
-  draw_circle(tree);
+    draw_rect(tree);
+    draw_circle(tree);
 
-  //SDL_RenderDrawRect(renderer, &rectangle2);
-  //clearTree(tree);
+    //SDL_RenderDrawRect(renderer, &rectangle2);
+    //clearTree(tree);
   
 }
 
