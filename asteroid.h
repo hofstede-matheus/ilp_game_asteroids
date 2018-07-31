@@ -26,6 +26,7 @@ typedef struct tAsteroid{
 // ***********************************************
 Asteroid* createAsteroid();
 Asteroid* createAsteroidAtPosition(int x, int y, int r);
+Asteroid* createProjectiel(int x, int y, int x2, int y2);
 int sinal();
 
 #endif //__ASTEROID_H__

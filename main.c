@@ -1,13 +1,19 @@
-#include "ilpgame.h"
+#include "ilpgame.h" //tá no spaceship.h
+#include <cmath>
 
 #include "asteroid.h"
 #include "quadTree.h"
+#include "spaceship.h"
 
 
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+
+
+Spaceship* spaceship;
 
 
 
@@ -34,8 +40,6 @@ SDL_Event event;
 
 
 
-
-
 SDL_Surface *img;
 SDL_Rect rectangle;
 SDL_Rect rectangle2;
@@ -45,6 +49,7 @@ SDL_Rect screenRect;
 
 QuadTree *tree;
 AsteroidList* list;
+AsteroidList* projectielList;
 
 int asteroids_num = 2; //DAFAULT
 int i = 0;
@@ -57,6 +62,11 @@ int move1 = 1;
 int start_flag = 1;
 
 Asteroid* asteroids[5];
+
+Mix_Music *effect;
+
+float x2;
+float y2;
 
 
 
@@ -215,10 +225,39 @@ void draw_circle(QuadTree* quadTree)
     
 }
 
+void draw_projectiel(AsteroidList* asteroidList){
+    int w, h;
+    //printf("P\n");
+    Node* node = asteroidList->start;
+    while(node != NULL){
+        
+        Asteroid asteroid = *node->asteroid;
+        //printf("%d:%d\n", asteroid.posX, asteroid.posY);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    
+        for (w = 0; w < asteroid.radius * 2; w++)
+        {
+            for (h = 0; h < asteroid.radius * 2; h++)
+            {
+                int dx = asteroid.radius - w; // horizontal offset
+                int dy = asteroid.radius - h; // vertical offset
+                if ((dx*dx + dy*dy) <= (asteroid.radius * asteroid.radius))
+                {
+                    SDL_RenderDrawPoint(renderer, asteroid.posX + dx, asteroid.posY + dy);
+                }
+            }
+        }
+        node = node->next;
+    }
+
+    
+}
 
 
 void init() {
-    printf("!!");
+    effect = loadMusic("coin.wav");
+
+    spaceship = createSpaceship();
 
     // pinta a tela de branco
     screenRect.x = screenRect.y = 0;
@@ -227,7 +266,7 @@ void init() {
     clearColor = SDL_MapRGB(screen->format, 255, 255, 255);
 
     tRectangle rec = createRetangle(0, 0, 800, 600);
-    printf("!%d",getSector(rec, createAsteroidAtPosition(700, 700, 10)));
+    printf("!%d\n",getSector(rec, createAsteroidAtPosition(700, 700, 10)));
 
     tree = createTree(0, 0, 800, 600, 0);
     
@@ -238,8 +277,13 @@ void init() {
     
 
     
-
+    // lista duplamente encadeada de asteroides, usei duplamente encadeada pois será preciso remover
+    // asteroides em alguns casos da colisão
     list = initList(); 
+
+    // lista duplamente encadeada de projéteis, usei duplamente encadeada pois será preciso remover
+    // asteroides quando eles não estão mais vizíveis (na area da tela)
+    projectielList = initList();
 
     
     for(i = 0; i < asteroids_num; i++){
@@ -298,47 +342,84 @@ void processEvent(SDL_Event event) {
   }
   switch(event.type){
       case SDL_KEYDOWN:
-        if(move1){
-            move1 = false;
-        }else{
-            move1 = true;
+        switch(event.key.keysym.sym){
+            case SDLK_SPACE:
+                //printf("P\n");
+                insertInList(projectielList, createProjectiel(spaceship->x2, spaceship->y2, spaceship->x, spaceship->y));
+                break;
         }
         break;
   }
 }
 
 void update() {
+    const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
 
-    if(start_flag){
+    // controle de aceleracao/frenagem
+    if (keyboard[SDL_SCANCODE_UP]) {
+        spaceship->vel += ACELERACAO;
+    }
+    if (keyboard[SDL_SCANCODE_DOWN]) {
+        spaceship->vel -= FRENAGEM;
+    }
+
+    // controle de rotacao
+    if (keyboard[SDL_SCANCODE_LEFT]) {
+        spaceship->angle -= VELANGULAR;
+    }
+    if (keyboard[SDL_SCANCODE_RIGHT]) {
+        spaceship->angle += VELANGULAR;
+    }
+    // dispara projetil
+    if (keyboard[SDL_SCANCODE_SPACE]) {
         
     }
-    
 
 
 
+    // aplica atrito
+    spaceship->vel -= DESACELERACAO;
+
+    // limita velocidade
+    if (spaceship->vel > VELMAX) {
+        spaceship->vel = VELMAX;
+    } else if(spaceship->vel < -VELMAX){
+        spaceship->vel = -VELMAX;
+    } else if (spaceship->vel < 0) {
+        if (keyboard[SDL_SCANCODE_DOWN]) {
+        spaceship->vel -= FRENAGEM;
+        }else{
+            spaceship->vel += ACELERACAO;
+        }
+    }
+
+    // atualiza posicao
+    spaceship->x += spaceship->vel * cos(spaceship->angle);
+    spaceship->y += spaceship->vel * sin(spaceship->angle);
+    spaceship->x2 = spaceship->x + cos(spaceship->angle) * TAM_CARRO;
+    spaceship->y2 = spaceship->y + sin(spaceship->angle) * TAM_CARRO;
 
     // mede o FPS
     //fpsthink();
     //printf("%f\n", framespersecond);
 
 
-    //calcula as colisões
+    //calcula as colisões dos asteróides
     Node* total = list->start;
     while(total != NULL){
         Asteroid current = *total->asteroid;
-        printf("CURRENT - %d:%d\n", current.posX, current.posY);
-        
+        //printf("CURRENT - %d:%d\n", current.posX, current.posY);
         total->asteroid->color = 2;
 
         //tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
         AsteroidList* nearbyAsteroids = initList();
-        printf("query start\n");
+        //printf("query start\n");
         query(&nearbyAsteroids, tree, &current);
         Node* asteroidsAUX = nearbyAsteroids->start;
         while(asteroidsAUX != NULL){
-            printf("query start\n");
+            //printf("query start\n");
             Asteroid near = *asteroidsAUX->asteroid;
-            printf("NEAR - %d:%d\n", near.posX, near.posY);
+            //printf("NEAR - %d:%d\n", near.posX, near.posY);
 
             // let d = dist(p.x, p.y, other.x, other.y);
             //              x1   y1   x2       y2
@@ -350,6 +431,8 @@ void update() {
                 float d = sqrt( pow (near.posX - current.posX, 2) + pow (near.posY - current.posY, 2));
                 if(d < current.radius + near.radius){
                     total->asteroid->color = 4;
+                    //Mix_PlayMusic(effect, 1);
+
                     //printf("%f:%d\n", d, current.radius / 2 + near.radius / 2);
                 } 
             }
@@ -357,6 +440,56 @@ void update() {
         }
         total = total->next;      
     }
+
+    //calcula a colisão da nave
+    Node* asteroidsAUX = list->start;
+    while(asteroidsAUX != NULL){
+        //printf("query start\n");
+        Asteroid near = *asteroidsAUX->asteroid;
+        //printf("NEAR - %d:%d\n", near.posX, near.posY);
+        float d = sqrt( pow (near.posX - spaceship->x, 2) + pow (near.posY - spaceship->y, 2));
+        float d2 = sqrt( pow (near.posX - spaceship->x2, 2) + pow (near.posY - spaceship->y2, 2));
+        if(d < near.radius || d2 < near.radius){
+            Mix_PlayMusic(effect, 1);
+        }
+        asteroidsAUX = asteroidsAUX->next;
+    }
+
+    //calcula as colisões dos projéteis com os asteróides
+    Node* total_p = projectielList->start;
+    printf("%d!!!!!!!!", projectielList->numElem);
+    while(total != NULL){
+        Asteroid current_p = *total_p->asteroid;
+        printf("CURRENT - %d:%d\n", current_p.posX, current_p.posY);
+        total_p->asteroid->color = 2;
+
+        //tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
+        AsteroidList* asteroidsNear_p = initList();
+        //printf("query start\n");
+        query(&asteroidsNear_p, tree, &current_p);
+        Node* asteroidsAUX_p = asteroidsNear_p->start;
+        while(asteroidsAUX_p != NULL){
+            printf("query start\n");
+            Asteroid near_p = *asteroidsAUX_p->asteroid;
+            //printf("NEAR - %d:%d\n", near.posX, near.posY);
+
+            // let d = dist(p.x, p.y, other.x, other.y);
+            //              x1   y1   x2       y2
+            // p = current
+            // near = other
+            
+            float d = sqrt( pow (near_p.posX - current_p.posX, 2) + pow (near_p.posY - current_p.posY, 2));
+            if(d < current_p.radius + near_p.radius){
+                total_p->asteroid->color = 4;
+                Mix_PlayMusic(effect, 1);
+
+                printf("%f:%d\n", d, current_p.radius / 2 + near_p.radius / 2);
+            } 
+            asteroidsAUX_p = asteroidsAUX_p->next;
+        }
+        total_p = total_p->next;      
+    }
+
 
     
     
@@ -368,15 +501,15 @@ void update() {
 
     
     // move os asteroides
-    if(move1)
+    //if(move1)
     moveAsteroids(list, 0, 800, 0, 600);
+    moveProjectiel(projectielList, 0, 800, 0, 600);
 
+    /* Para pausar a execução nos testes
     while( SDL_PollEvent( &event ) ){
         switch( event.type ){
-            /* Look for a keypress */
             case SDL_KEYDOWN:
             move1 = false;
-                /* Check the SDLKey values and move change the coords */
                 switch( event.key.keysym.sym ){
                     case SDLK_LEFT:
                         
@@ -396,6 +529,7 @@ void update() {
             
         }
     }
+    */
     
     // atualiza arvore
     
@@ -416,27 +550,41 @@ void update() {
 }
 
 void draw() {
+    //float x2 = spaceship->x + cos(spaceship->angle) * TAM_CARRO;
+    //float y2 = spaceship->y + sin(spaceship->angle) * TAM_CARRO;
+
+    // drawLine(spaceship->x, spaceship->y, x2, y2, 255, 0, 0);
+    // drawLine(0.3 * spaceship->x + 0.7 * x2, 0.3 * spaceship->y + 0.7 * y2, x2, y2, 0, 255, 0);
+    // drawLine(-0.3 * spaceship->x + 0.7 * x2, -0.3 * spaceship->y + 0.7 * y2, x-2, -y2, 0, 255, 0);
+
+    drawLine(spaceship->x, spaceship->y, spaceship->x2, spaceship->y2, 255, 0, 0);
+    //drawLine(x2, y2 + TAM_CARRO, spaceship->x, spaceship->y, 0, 255, 0);
+    //drawLine(spaceship->x, spaceship->y, x2 + TAM_CARRO, y2 + TAM_CARRO, 0, 255, 0);
+    //drawLine(640, 480, 320, 0, 0, 255, 0);
+    //drawLine(0, 480, 640, 480, 0, 0, 255);
+
     //SDL_FillRect(screen, &screenRect, clearColor);
     //SDL_Flip(screen);
   
   
-  //drawImage(img, asteroids[i]->posX, asteroids[i]->posY);
-  /*
-  Node* node = list->start;
-  while(node != NULL){
-    //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
-    drawImage(img, node->asteroid->posX, node->asteroid->posY);
-    node = node->next;      
-  }
-  */
+    //drawImage(img, asteroids[i]->posX, asteroids[i]->posY);
+    /*
+    Node* node = list->start;
+    while(node != NULL){
+        //printf("%d:%d\n", node->asteroid->posX, node->asteroid->posY);    
+        drawImage(img, node->asteroid->posX, node->asteroid->posY);
+        node = node->next;      
+    }
+    */
   
-  //drawImage(img, 0, 0);
+    //drawImage(img, 0, 0);
 
-  draw_rect(tree);
-  draw_circle(tree);
+    draw_rect(tree);
+    draw_circle(tree);
+    draw_projectiel(projectielList);
 
-  //SDL_RenderDrawRect(renderer, &rectangle2);
-  //clearTree(tree);
+    //SDL_RenderDrawRect(renderer, &rectangle2);
+    //clearTree(tree);
   
 }
 

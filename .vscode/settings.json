@@ -5,6 +5,8 @@
         "string_view": "c",
         "circle.h": "c",
         "stdbool.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "rectangle.h": "c",
+        "spaceship.h": "c"
     }
 }
