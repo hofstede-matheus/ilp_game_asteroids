@@ -19,6 +19,7 @@ typedef struct {
 
 AsteroidList* initList();
 void insertInList(AsteroidList* asteroidList, Asteroid* asteroid);
-void removeByIndex(AsteroidList* asteroidList, int i);
+void removeByIndex(AsteroidList* asteroidList, int x, int y);
 void removeAtEnd(AsteroidList* asteroidList);
 void moveAsteroids(AsteroidList* asteroidList, int x0, int x1, int y0, int y1);
+void moveProjectiel(AsteroidList* asteroidList, int x0, int x1, int y0, int y1);

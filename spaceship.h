@@ -2,7 +2,7 @@
 //#include "asteroidList.h"
 //#include "quadTree.h"
 
-#define TAM_CARRO 20
+#define TAM_CARRO 12
 
 #define PI 3.14159265358979f
 
