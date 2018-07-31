@@ -144,7 +144,7 @@ void fpsthink() {
 
 
 
-
+// renderiza os quadrados das áreas da quadTree
 void draw_rect(QuadTree* quadTree){
     rectangle.x = quadTree->boundary.x;
     rectangle.y = quadTree->boundary.y;
@@ -160,7 +160,7 @@ void draw_rect(QuadTree* quadTree){
     }
     
 }
-
+// Renderiza cada asteroide
 void draw_circle_render(Asteroid* asteroid){
     int w, h;
     switch(asteroid->color){
@@ -410,7 +410,7 @@ void update() {
     while(total != NULL){
         Asteroid current = *total->asteroid;
         //printf("CURRENT - %d:%d\n", current.posX, current.posY);
-        total->asteroid->color = 2;
+        //total->asteroid->color = 2;
 
         //tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
         AsteroidList* nearbyAsteroids = initList();
@@ -494,6 +494,7 @@ void update() {
     }
 
     //calcula as colisões dos projéteis com os asteróides
+    // CONSERTAR!
     Node* total_p = projectielList->start;
     //printf("%d!!!!!!!!", projectielList->numElem);
     while(total != NULL){
