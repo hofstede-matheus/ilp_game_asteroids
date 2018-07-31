@@ -42,6 +42,21 @@ Asteroid* createAsteroidAtPosition(int x, int y, int r) {
     asteroid->color = rand() % 3;     
 	return asteroid;
 }
+Asteroid* createAsteroidAtPosition(int x, int y, int r, int velX, int velY) {
+    // pra testes
+    
+    Asteroid* asteroid = (Asteroid*) malloc(sizeof(Asteroid));
+    //isso é um circulo
+    asteroid->radius = r;
+    asteroid->posX = x;
+    asteroid->posY = y;
+    
+
+    asteroid->velX = velX; // 3 e 1
+    asteroid->velY = velY;
+    asteroid->color = rand() % 3;     
+	return asteroid;
+}
 Asteroid* createProjectiel(int x, int y, int x2, int y2){
     Asteroid* asteroid = (Asteroid*) malloc(sizeof(Asteroid));
 

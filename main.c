@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
 
 
 
@@ -292,8 +293,8 @@ void init() {
     }
     
     
-    //insertInList(list, createAsteroidAtPosition(215, 45, 12));
-    //insertInList(list, createAsteroidAtPosition(240, 60, 12));
+    //insertInList(list, createAsteroidAtPosition(215, 60, 12, 2, 0));
+    //insertInList(list, createAsteroidAtPosition(100, 60, 12, -5, 0));
 
     //insertInList(list, createAsteroidAtPosition(742, 266, 10));
     //insertInList(list, createAsteroidAtPosition(629, 218, 10));
@@ -430,6 +431,43 @@ void update() {
                 //printf("%p    %p \n", &current, &near);
                 float d = sqrt( pow (near.posX - current.posX, 2) + pow (near.posY - current.posY, 2));
                 if(d < current.radius + near.radius){
+                    float angle = abs(atan2(near.posY - current.posY, near.posX - current.posX) * 180 / PI);
+                    printf("%f", angle);
+                    // Caso 1: entre 0 e 30 - quase frente, se juntam, soma as direções iniciais, media da velocidade;
+                    // Caso 2: entre 31 e 150 - fragmenta em 2, direções opostas;
+                    // Caso 2: entre 151 e 180 - os dois desaparecem;
+                    if(angle >= 0 && angle <=30){
+                        int newx = near.velX + current.velX;
+                        int newy = near.velY + current.velY;
+
+                        removeByIndex(list, near.posX, near.posY);
+                        removeByIndex(list, current.posX, current.posY);
+                        
+                        insertInList(list, createAsteroidAtPosition(near.posX, near.posY, (near.radius + current.radius) / 2, newx, newy));
+                    }else if(angle > 30 && angle <= 150){
+
+                        removeByIndex(list, near.posX, near.posY);
+                        removeByIndex(list, current.posX, current.posY);
+                        // esses if são pra não ficar com asteróides minúsculos rodando na tela
+                        if(near.radius / 2 > 5){
+                            insertInList(list, createAsteroidAtPosition(near.posX -30, near.posY + 15, near.radius / 1.2, -near.velX, near.velY + 1));
+                            insertInList(list, createAsteroidAtPosition(near.posX + 30, near.posY - 15, near.radius / 1.2, -near.velX, near.velY - 1));
+                        }else{
+                            removeByIndex(list, near.posX, near.posY);
+                        }
+                        
+                        if(near.radius / 2 > 5){
+                            insertInList(list, createAsteroidAtPosition(current.posX - 25, current.posY + 19, current.radius / 1.2, -current.velX, current.velY + 1));
+                            insertInList(list, createAsteroidAtPosition(current.posX + 25, current.posY - 19, current.radius / 1.2, -current.velX, current.velY - 1));
+                        }else{
+                            removeByIndex(list, current.posX, current.posY);
+                        }
+                        
+                    }else{
+                        removeByIndex(list, near.posX, near.posY);
+                        removeByIndex(list, current.posX, current.posY);
+                    }
+
                     total->asteroid->color = 4;
                     //Mix_PlayMusic(effect, 1);
 
@@ -457,10 +495,10 @@ void update() {
 
     //calcula as colisões dos projéteis com os asteróides
     Node* total_p = projectielList->start;
-    printf("%d!!!!!!!!", projectielList->numElem);
+    //printf("%d!!!!!!!!", projectielList->numElem);
     while(total != NULL){
         Asteroid current_p = *total_p->asteroid;
-        printf("CURRENT - %d:%d\n", current_p.posX, current_p.posY);
+        //printf("CURRENT - %d:%d\n", current_p.posX, current_p.posY);
         total_p->asteroid->color = 2;
 
         //tCircle range = createCircle(node->asteroid->posX, node->asteroid->posY, node->asteroid->radius * 2);
